@@ -1,9 +1,15 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from weather import get_current_weather
 from waitress import serve
+from flask_cors import CORS
+import requests
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
-
+CORS(app)
 
 @app.route('/')
 @app.route('/index')
@@ -75,6 +81,16 @@ def get_weather():
         direction=direction
     )
         
+
+@app.route('/api/weather/<city>')
+def get_current_weather_api(city="Vaasa"):
+
+    request_url = f'http://api.openweathermap.org/data/2.5/weather?appid={os.getenv("API_KEY")}&q={city}&units=metric'
+
+    weather_data = requests.get(request_url).json()
+
+    return jsonify(weather_data)
+
 
 
 if __name__ == "__main__":
